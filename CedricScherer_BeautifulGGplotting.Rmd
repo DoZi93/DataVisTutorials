@@ -147,7 +147,7 @@ ggplot(chic, aes(x = date, y = temp, color = season)) +
   guides(color = guide_elegend(direction = "horizontal")) # makes the legend horizontal instead of vertical
 
 ```
- We can also change the background boxes in the legend
+ We can also change the background boxes in the legend and change the sizes of legend keys
  
 ```{r}
 ggplot(chic, aes(x = date, y = temp, color = season)) +
@@ -162,4 +162,88 @@ ggplot(chic, aes(x = date, y = temp, color = season)) +
   geom_rug(show.legend = FALSE) # plots rug plots additionally, but the rug legend is not shown in the legend
 ```
 
-# Add 
+# Use transparent colors in your plots!
+
+transparency can be incorporated into the hexcodes by adding the hexvalues in front
+of the color hexcodes.
+
+0% = #00
+10% = #16
+20% = #32
+30% = #48
+40% = #64
+50% = #80
+60% = #96
+70% = #112
+80% = #128
+90% = #144
+
+/#64D2AA becomes only around ~60% visible if "*96*" is added to it -> #64D2AA*96*
+
+```{r}
+ggplot(chic, aes(x = date, y = temp)) +
+  geom_point(color = "#1D8565", size = 2) +
+  labs(x = "Year", y = "Temperature (°F)") +
+  theme(panel.border = element_rect(fill = "#64D2AA96", color = "#64D2AA", size = 2))
+```
+
+# Highly customisable facet wrap boxes
+
+First we define our regular ggplot which we want to facet wrap later on
+```{r}
+g <-
+  ggplot(chic, aes(x = date, y = temp)) +
+    geom_point(color = "chartreuse4", alpha = .3) +
+    labs(x = "Year", y = "Temperature (°F)") +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+```
+
+Add a facet wrap
+```{r fig.height = 8}
+g +  facet_wrap(year ~ season, nrow = 4, scale = "free_x")
+```
+
+Import a function that allows for highly customisable facet wrap labels
+```{r}
+library(ggtext)
+library(rlang)
+
+element_textbox_highlight <- function(..., hi.labels = NULL, hi.fill = NULL,
+                                      hi.col = NULL, hi.box.col = NULL, hi.family = NULL) {
+  structure(
+    c(element_textbox(...),
+      list(hi.labels = hi.labels, hi.fill = hi.fill, hi.col = hi.col, hi.box.col = hi.box.col, hi.family = hi.family)
+    ),
+    class = c("element_textbox_highlight", "element_textbox", "element_text", "element")
+  )
+}
+
+element_grob.element_textbox_highlight <- function(element, label = "", ...) {
+  if (label %in% element$hi.labels) {
+    element$fill <- element$hi.fill %||% element$fill
+    element$colour <- element$hi.col %||% element$colour
+    element$box.colour <- element$hi.box.col %||% element$box.colour
+    element$family <- element$hi.family %||% element$family
+  }
+  NextMethod()
+}
+```
+
+```{r fig.height = 7}
+g + facet_wrap(year ~ season, nrow = 4, scales = "free_x") +
+  theme(strip.background = element_blank(),
+        strip.text = element_textbox_highlight(
+          family = "Playfair", # font
+          size = 12,
+          face = "bold",
+          fill = "white",
+          box.color = "chartreuse4",
+          color = "chartreuse4",
+          halign = .5,
+          linetype = 1, # linetype of rectangles around the strip text
+          r = unit(5, "pt"), # how rounded the rectangles should be
+          width = unit(1, "npc"), # width of the rectangles 
+          
+        ))
+```
+
