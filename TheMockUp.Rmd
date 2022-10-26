@@ -1,0 +1,16 @@
+---
+title: "The MockUp"
+author: "Dominik Ziaja"
+date: "2022-10-26"
+output: html_document
+---
+
+# Tables in R
+
+Practices based on the blog post of Thomas Mock https://themockup.blog/posts/2020-09-04-10-table-rules-in-r/
+
+This post is mainly about the R package "gt" (*g*rammar of *t*ables) which can
+be used to create tables of tabular data. It also shows how to combine 
+tables with plots. For grammar tables for statistical model output, the package
+*gtsummary* is to be used.
+
