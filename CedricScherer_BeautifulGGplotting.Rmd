@@ -50,6 +50,8 @@ Tutorial can be found here: https://www.cedricscherer.com/2019/08/05/a-ggplot2-t
 ```{r}
 library(tidyverse)
 library(showtext)
+library(ggtext)
+library(ggthemes)
 ```
 
 
@@ -144,7 +146,7 @@ ggplot(chic, aes(x = date, y = temp, color = season)) +
   labs(x = "Year", y = "Temperature (°F)", color = NULL) +
   theme(legend.position = c(.15, .15),
         legend.background = element_rect(fill = "transparent")) #+
-  guides(color = guide_elegend(direction = "horizontal")) # makes the legend horizontal instead of vertical
+  guides(color = guide_legend(direction = "horizontal")) # makes the legend horizontal instead of vertical
 
 ```
  We can also change the background boxes in the legend and change the sizes of legend keys
@@ -229,6 +231,8 @@ element_grob.element_textbox_highlight <- function(element, label = "", ...) {
 }
 ```
 
+use said function to customise a facet wrap of the dataset.
+It is commented, what every command does.
 ```{r fig.height = 7}
 g + facet_wrap(year ~ season, nrow = 4, scales = "free_x") +
   theme(strip.background = element_blank(),
@@ -243,7 +247,45 @@ g + facet_wrap(year ~ season, nrow = 4, scales = "free_x") +
           linetype = 1, # linetype of rectangles around the strip text
           r = unit(5, "pt"), # how rounded the rectangles should be
           width = unit(1, "npc"), # width of the rectangles 
-          
+          padding = margin(5, 0, 3, 0), # increases the margins of the boxes. 5 here increases the height to the top, 3 to the bottom
+          margin = margin(0, 1, 3, 1), # margin between the two levels of facets (year and season)
+          hi.labels = (c("1997", "1998", "1999", "Winter")), # labels that should be highlighted with the next commands
+          hi.fill = "chartreuse4", # color fill for the boxes of the highlighted labels
+          hi.box.col = "black", # color for the boxes of the highlighted labels
+          hi.col = "white" # color of the font of the highlighted labels
         ))
+```
+
+# Working with colors
+
+```{r}
+(ga <- ggplot(chic, aes(x = date, y = temp, color = season)) + # if plot is assigned within brackets, it's plotted
+  geom_point() +
+  labs(x = "Year", y = "Temperature (°F)", color = NULL))
+```
+
+ggthemes contains color palettes of e.g. tableau
+
+```{r}
+ga + scale_color_tableau()
+```
+## sequential data coloring
+
+```{r}
+gb <- ggplot(chic, aes(x = date, y = temp, color = temp)) +
+  geom_point() +
+  labs(x = "Year", y = "Temperature (°F)", color = "Temperature (°F):")
+
+gb + scale_color_continuous()
+```
+
+
+We can also define the midpoint
+```{r}
+mid <- mean(chic$temp)
+
+gb + scale_color_gradient2(low = "darkkhaki",
+                           midpoint = mid,
+                           high = "darkgreen")
 ```
 
